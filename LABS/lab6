@@ -1,0 +1,119 @@
+import java.util.Random;
+
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println("ЛАБОРАТОРНА РОБОТА 1.6: ДОСЛІДЖЕННЯ МЕТОДІВ АНАЛІЗУ АЛГОРИТМІВ");
+        System.out.println("Алгоритм: Quick Sort (Медіана з трьох)\n");
+
+        int N = 100;
+        int size1 = N;             // 100
+        int size2 = N * N;         // 10,000
+        int size3 = N * N * N;     // 1,000,000
+
+        // Прогрів JVM для стабілізації JIT-компілятора перед замірами
+        warmUp();
+
+        // Заміри для кожного обсягу даних
+        long timeN1 = measureSortingTime(size1);
+        long timeN2 = measureSortingTime(size2);
+        long timeN3 = measureSortingTime(size3);
+
+        // Виведення результатів у табличному вигляді
+        System.out.println("+-------------------+-----------------------+-----------------------+");
+        System.out.printf("| %-17s | %-21s | %-21s |\n", "Кількість ел. (X)", "Час у наносекундах", "Час у мілісекундах");
+        System.out.println("+-------------------+-----------------------+-----------------------+");
+        System.out.printf("| N = %-13d | %-21d | %-21.4f |\n", size1, timeN1, timeN1 / 1_000_000.0);
+        System.out.printf("| N^2 = %-11d | %-21d | %-21.4f |\n", size2, timeN2, timeN2 / 1_000_000.0);
+        System.out.printf("| N^3 = %-11d | %-21d | %-21.4f |\n", size3, timeN3, timeN3 / 1_000_000.0);
+        System.out.println("+-------------------+-----------------------+-----------------------+");
+
+        // Виклик текстової побудови графіка
+        printGraph(timeN1, timeN2, timeN3);
+    }
+
+    // Метод для реалізації швидкого сортування
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            // Базовий випадок для маленьких підмасивів
+            if (high - low < 2) {
+                if (arr[low] > arr[high]) {
+                    swap(arr, low, high);
+                }
+                return;
+            }
+            int pivotIdx = partition(arr, low, high);
+            quickSort(arr, low, pivotIdx - 1);
+            quickSort(arr, pivotIdx + 1, high);
+        }
+    }
+
+    // Розбиття масиву з вибором медіани з трьох
+    private static int partition(int[] arr, int low, int high) {
+        int mid = low + (high - low) / 2;
+
+        // Сортуємо три елементи: arr[low], arr[mid], arr[high]
+        if (arr[low] > arr[mid]) swap(arr, low, mid);
+        if (arr[low] > arr[high]) swap(arr, low, high);
+        if (arr[mid] > arr[high]) swap(arr, mid, high);
+
+        // Опорним стає медіанний елемент arr[mid]. Ховаємо його в кінець.
+        int pivot = arr[mid];
+        swap(arr, mid, high);
+
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+                swap(arr, i, j);
+            }
+        }
+        swap(arr, i + 1, high); // повертаємо опорний елемент на його законне місце
+        return i + 1;
+    }
+
+    private static void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    // Генерація та замір часу виконання алгоритму
+    private static long measureSortingTime(int size) {
+        int[] arr = new int[size];
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            arr[i] = random.nextInt(10_000_000);
+        }
+
+        long start = System.nanoTime();
+        quickSort(arr, 0, arr.length - 1);
+        long end = System.nanoTime();
+
+        return (end - start);
+    }
+
+    // Прогрів JVM
+    private static void warmUp() {
+        for (int i = 0; i < 50; i++) {
+            measureSortingTime(1000);
+        }
+    }
+
+    // Текстова візуалізація графіка залежності
+    private static void printGraph(long t1, long t2, long t3) {
+        System.out.println("\n[ Ескіз графіка залежності часу від обсягу даних T = f(n) ]");
+        System.out.println("Час (ms)");
+        System.out.println("  ^");
+        System.out.printf("  |                                               * (N^3, %.2f ms)\n", t3 / 1_000_000.0);
+        System.out.println("  |");
+        System.out.println("  |");
+        System.out.println("  |");
+        System.out.println("  |");
+        System.out.printf("  |                     * (N^2, %.2f ms)\n", t2 / 1_000_000.0);
+        System.out.println("  |");
+        System.out.printf("  |       * (N, %.3f ms)\n", t1 / 1_000_000.0);
+        System.out.println("  +-------------------------------------------------------------> Кількість (n)");
+        System.out.println("         100           10,000                 1,000,000");
+    }
+}
