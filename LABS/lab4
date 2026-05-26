@@ -1,0 +1,110 @@
+// ==========================================
+// 1. Опис класу "Студент" згідно з Варіантом 13
+// ==========================================
+class Student {
+    private String lastName;     // Прізвище
+    private String firstName;    // Ім'я
+    private int cityCode;        // Код міста (тризначне число)
+    private String homePhone;    // Номер домашнього телефону
+
+    public Student(String lastName, String firstName, int cityCode, String homePhone) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.cityCode = cityCode;
+        this.homePhone = homePhone;
+    }
+
+    // Геттери для доступу до даних
+    public String getLastName() { return lastName; }
+    public String getFirstName() { return firstName; }
+    public int getCityCode() { return cityCode; }
+    public String getHomePhone() { return homePhone; }
+}
+
+// ==========================================
+// 2. Клас із реалізацією алгоритму сортування
+// ==========================================
+class SortingUtility {
+
+    // Метод сортування розподіленого підрахунку (Counting Sort)
+    public static void distributionCountingSort(Student[] array) {
+        if (array == null || array.length <= 1) return;
+
+        // Крок 2.1: Пошук мінімального та максимального кодів міст у масиві
+        int min = array[0].getCityCode();
+        int max = array[0].getCityCode();
+        for (Student s : array) {
+            if (s.getCityCode() < min) min = s.getCityCode();
+            if (s.getCityCode() > max) max = s.getCityCode();
+        }
+
+        int range = max - min + 1;
+        int[] countArray = new int[range];
+        Student[] outputArray = new Student[array.length];
+
+        // Крок 2.2: Підрахунок частоти появи кожного коду міста
+        for (Student s : array) {
+            countArray[s.getCityCode() - min]++;
+        }
+
+        // Крок 2.3: Обчислення префіксних сум (накопичувальний підрахунок позицій)
+        for (int i = 1; i < range; i++) {
+            countArray[i] += countArray[i - 1];
+        }
+
+        // Крок 2.4: Побудова вихідного масиву
+        // Обхід з кінця до початку (array.length - 1 нащадок до 0) гарантує СТАБІЛЬНІСТЬ сортування
+        for (int i = array.length - 1; i >= 0; i--) {
+            int currentCode = array[i].getCityCode();
+            int position = countArray[currentCode - min] - 1;
+            outputArray[position] = array[i];
+            countArray[currentCode - min]--; // Зменшуємо лічильник для однакових ключів
+        }
+
+        // Крок 2.5: Копіювання відсортованих елементів назад у початковий масив
+        System.arraycopy(outputArray, 0, array, 0, array.length);
+    }
+
+    // Допоміжний метод для виведення масиву студентів у вигляді таблиці
+    public static void printTable(Student[] array) {
+        System.out.println("+-----------------+--------------+-----------+----------------------+");
+        System.out.printf("| %-15s | %-12s | %-9s | %-20s |\n", 
+                "Прізвище", "Ім'я", "Код міста", "Домашній телефон");
+        System.out.println("+-----------------+--------------+-----------+----------------------+");
+        for (Student s : array) {
+            System.out.printf("| %-15s | %-12s | %-9d | %-20s |\n", 
+                    s.getLastName(), s.getFirstName(), s.getCityCode(), s.getHomePhone());
+        }
+        System.out.println("+-----------------+--------------+-----------+----------------------+");
+    }
+}
+
+// ==========================================
+// Головний клас програми
+// ==========================================
+public class Main {
+    public static void main(String[] args) {
+        // 3. Створення та ініціалізація одновимірного масиву студентів
+        Student[] students = {
+            new Student("Петренко", "Іван", 250, "44-55-66"),
+            new Student("Іваненко", "Марія", 102, "11-22-33"),
+            new Student("Сидоренко", "Олег", 344, "77-88-99"),
+            new Student("Коваленко", "Анна", 102, "99-00-11"), // Однаковий код міста для перевірки стабільності
+            new Student("Мельник", "Дмитро", 144, "55-11-22"),
+            new Student("Ткаченко", "Олена", 250, "33-44-55")
+        };
+
+        System.out.println("ЛАБОРАТОРНА РОБОТА 1.4: ДОСЛІДЖЕННЯ АЛГОРИТМІВ СОРТУВАННЯ");
+        
+        // 4. Виведення вмісту одновимірного масиву ПЕРЕД сортуванням
+        System.out.println("\n[ Вміст масиву ДО сортування ]:");
+        SortingUtility.printTable(students);
+
+        // 5. Сортування одновимірного масиву за алгоритмом розподіленого підрахунку
+        SortingUtility.distributionCountingSort(students);
+
+        // 6. Виведення вмісту одновимірного масиву ПІСЛЯ сортування
+        System.out.println("\n[ Вміст масиву ПІСЛЯ сортування (за кодом міста) ]:");
+        SortingUtility.printTable(students);
+    }
+}
