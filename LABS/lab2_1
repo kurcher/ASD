@@ -1,0 +1,78 @@
+public class MathematicalAlgorithms {
+
+    // 1. Визначення підінтегральної функції f(x)
+    public static double f(double x) {
+        return Math.sqrt(1.0 - 0.25 * Math.pow(Math.sin(x), 2));
+    }
+
+    // 2. Метод прямокутників (лівих)
+    public static double rectangleMethod(double a, double b, int n) {
+        double h = (b - a) / n;
+        double sum = 0.0;
+        for (int i = 0; i < n; i++) {
+            double x = a + i * h;
+            sum += f(x);
+        }
+        return sum * h;
+    }
+
+    // 3. Метод трапецій
+    public static double trapezoidMethod(double a, double b, int n) {
+        double h = (b - a) / n;
+        double sum = 0.5 * (f(a) + f(b));
+        for (int i = 1; i < n; i++) {
+            double x = a + i * h;
+            sum += f(x);
+        }
+        return sum * h;
+    }
+
+    // 4. Метод Сімпсона (парабол)
+    public static double simpsonMethod(double a, double b, int n) {
+        // n має бути парним
+        if (n % 2 != 0) {
+            n++; 
+        }
+        double h = (b - a) / n;
+        double sum = f(a) + f(b);
+
+        for (int i = 1; i < n; i++) {
+            double x = a + i * h;
+            if (i % 2 == 0) {
+                sum += 2 * f(x); // Парні індекси
+            } else {
+                sum += 4 * f(x); // Непарні індекси
+            }
+        }
+        return sum * (h / 3.0);
+    }
+
+    public static void main(String[] args) {
+        double a = 1.0;
+        double b = Math.PI / 2.0;
+        int n = 4; // Оптимальна кількість кроків для наближення до h=0.2 та виконання умов методів
+        double h = (b - a) / n;
+
+        // Точне значення інтеграла для порівняння (знайдене аналітично/чисельно з високою точністю)
+        double exactValue = 0.502585755;
+
+        System.out.println("ЛАБОРАТОРНА РОБОТА 2.1: ДОСЛІДЖЕННЯ МАТЕМАТИЧНИХ АЛГОРИТМІВ");
+        System.out.printf("Інтеграл: від %.1f до PI/2 функції sqrt(1 - 0.25*sin^2(x))\n", a);
+        System.out.printf("Параметри: n = %d, обчислений крок h = %.5f\n\n", n, h);
+
+        // Обчислення за трьома методами
+        double resRect = rectangleMethod(a, b, n);
+        double resTrap = trapezoidMethod(a, b, n);
+        double resSimp = simpsonMethod(a, b, n);
+
+        // Виведення результатів у вигляді таблиці
+        System.out.println("+--------------------------+------------------+------------------+");
+        System.out.printf("| %-24s | %-16s | %-16s |\n", "Метод обчислення", "Результат", "Абсолютна похибка");
+        System.out.println("+--------------------------+------------------+------------------+");
+        System.out.printf("| %-24s | %-16.6f | %-16.6e |\n", "Прямокутників (лівих)", resRect, Math.abs(resRect - exactValue));
+        System.out.printf("| %-24s | %-16.6f | %-16.6e |\n", "Трапецій", resTrap, Math.abs(resTrap - exactValue));
+        System.out.printf("| %-24s | %-16.6f | %-16.6e |\n", "Сімпсона (парабол)", resSimp, Math.abs(resSimp - exactValue));
+        System.out.println("+--------------------------+------------------+------------------+");
+        System.out.printf(" Точне значення інтеграла: %.9f\n", exactValue);
+    }
+}
