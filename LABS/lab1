@@ -1,0 +1,135 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
+// ==========================================
+// 1. Опис класу "Студент" згідно з Варіантом 13
+// ==========================================
+class Student {
+    private String lastName;       // Прізвище
+    private String firstName;      // Ім'я
+    private int course;            // Курс
+    private String studentTicket;  // Студентський квиток (ключ для пошуку/вставки)
+    private double scholarship;    // Стипендія
+
+    public Student(String lastName, String firstName, int course, String studentTicket, double scholarship) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.course = course;
+        this.studentTicket = studentTicket;
+        this.scholarship = scholarship;
+    }
+
+    // Геттери для доступу до даних
+    public String getLastName() { return lastName; }
+    public String getFirstName() { return firstName; }
+    public int getCourse() { return course; }
+    public String getStudentTicket() { return studentTicket; }
+    public double getScholarship() { return scholarship; }
+}
+
+// ==========================================
+// 2. Опис структури Бінарного Дерева
+// ==========================================
+
+// Клас для представлення вузла дерева
+class TreeNode {
+    Student data;
+    TreeNode left;
+    TreeNode right;
+
+    public TreeNode(Student data) {
+        this.data = data;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+// Клас для керування бінарним деревом
+class BinaryTree {
+    private TreeNode root;
+
+    public BinaryTree() {
+        this.root = null;
+    }
+
+    // Метод додавання елементів до дерева
+    public void insert(Student student) {
+        root = insertRecursive(root, student);
+    }
+
+    private TreeNode insertRecursive(TreeNode current, Student student) {
+        if (current == null) {
+            return new TreeNode(student);
+        }
+
+        // Порівняння за номером студентського квитка (як за унікальним текстовим ключем)
+        if (student.getStudentTicket().compareTo(current.data.getStudentTicket()) < 0) {
+            current.left = insertRecursive(current.left, student);
+        } else if (student.getStudentTicket().compareTo(current.data.getStudentTicket()) > 0) {
+            current.right = insertRecursive(current.right, student);
+        }
+        
+        return current;
+    }
+
+    // Метод для паралельного (порівневого) обходу дерева з виведенням у таблицю
+    public void printParallelTraversal() {
+        if (root == null) {
+            System.out.println("Дерево порожнє!");
+            return;
+        }
+
+        // Шапка таблиці
+        System.out.println("+-----------------+--------------+------+-----------------+------------+");
+        System.out.printf("| %-15s | %-12s | %-4s | %-15s | %-10s |\n", 
+                "Прізвище", "Ім'я", "Курс", "Студ. квиток", "Стипендія");
+        System.out.println("+-----------------+--------------+------+-----------------+------------+");
+
+        // Використовуємо чергу (Queue) для реалізації обходу в ширину (Level-Order)
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            TreeNode currentNode = queue.poll();
+            Student s = currentNode.data;
+
+            // Виведення поточного студента у рядок таблиці
+            System.out.printf("| %-15s | %-12s | %-4d | %-15s | %-10.2f |\n", 
+                    s.getLastName(), s.getFirstName(), s.getCourse(), s.getStudentTicket(), s.getScholarship());
+
+            // Додаємо лівого та правого нащадків до черги для наступних рівнів
+            if (currentNode.left != null) {
+                queue.add(currentNode.left);
+            }
+            if (currentNode.right != null) {
+                queue.add(currentNode.right);
+            }
+        }
+        System.out.println("+-----------------+--------------+------+-----------------+------------+");
+    }
+}
+
+// ==========================================
+// Головний клас програми
+// ==========================================
+public class Main {
+    public static void main(String[] args) {
+        // 3. Створення екземпляра бінарного дерева
+        BinaryTree studentTree = new BinaryTree();
+
+        // 4. Додавання елементів до дерева
+        // Корінь дерева (початковий елемент)
+        studentTree.insert(new Student("Петренко", "Іван", 2, "KB-445566", 2000.0));
+        
+        // Інші вузли
+        studentTree.insert(new Student("Іваненко", "Марія", 1, "AB-112233", 2500.0));
+        studentTree.insert(new Student("Сидоренко", "Олег", 3, "MM-778899", 0.0));
+        studentTree.insert(new Student("Коваленко", "Анна", 4, "AA-009988", 2900.0));
+        studentTree.insert(new Student("Мельник", "Дмитро", 2, "KB-551122", 2100.0));
+        studentTree.insert(new Student("Ткаченко", "Олена", 1, "ZA-334455", 2500.0));
+
+        // 5. Виведення вмісту дерева у табличному вигляді (Паралельний обхід)
+        System.out.println("ЛАБОРАТОРНА РОБОТА 1.3: РЕЗУЛЬТАТ ПАРАЛЕЛЬНОГО ОБХОДУ ДЕРЕВА");
+        studentTree.printParallelTraversal();
+    }
+}
