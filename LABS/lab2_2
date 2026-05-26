@@ -1,0 +1,61 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class IdentificationAlgorithms {
+
+    public static void main(String[] args) {
+        String fileName = "words.txt";
+
+        // 1. Створення текстового файлу, де кожен рядок містить одне слово
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println("^HELLO^*^WORLD^");     // ВІДПОВІДАЄ
+            writer.println("^A^*^B^");             // ВІДПОВІДАЄ (мінімальний розмір)
+            writer.println("HELLO*WORLD");         // НЕ ВІДПОВІДАЄ (відсутні символи ^)
+            writer.println("^Hello^*^World^");     // НЕ ВІДПОВІДАЄ (малі літери)
+            writer.println("^TEST^*^");            // НЕ ВІДПОВІДАЄ (пуста друга частина)
+            writer.println("^JAVA^#^CODE^");       // НЕ ВІДПОВІДАЄ (неправильний роздільник)
+            writer.println("^COMPILER^*^STEPS^");  // ВІДПОВІДАЄ
+            writer.println(" ^A^*^B^");            // НЕ ВІДПОВІДАЄ (зайвий пробіл на початку)
+            writer.println("^ABCD^*^XYZ^ ");       // НЕ ВІДПОВІДАЄ (зайвий пробіл в кінці)
+        } catch (IOException e) {
+            System.err.println("Помилка при створенні файлу: " + e.getMessage());
+            return;
+        }
+
+        // 2. Опис регулярного виразу (у Java зворотний слеш екранується додатково: \\)
+        String regex = "^\\^[A-Z]+\\^\\*\\^[A-Z]+\\^$";
+        Pattern pattern = Pattern.compile(regex);
+
+        System.out.println("ЛАБОРАТОРНА РОБОТА 2.2: ДОСЛІДЖЕННЯ АЛГОРИТМІВ ІДЕНТИФІКАЦІЇ");
+        System.out.println("Шаблон Варіанту 13: ^[A-Z]+^*^[A-Z]+^");
+        System.out.println("Регулярний вираз: " + regex);
+        System.out.println("\n[ Аналіз вмісту файлу '" + fileName + "' ]:");
+        
+        System.out.println("+---------------------------+-----------------------+");
+        System.out.printf("| %-25s | %-21s |\n", "Слово з файлу", "Статус розпізнавання");
+        System.out.println("+---------------------------+-----------------------+");
+
+        // 3. Читання файлу та пошук слів, які відповідають регулярному виразу
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String word;
+            while ((word = reader.readLine()) != null) {
+                Matcher matcher = pattern.matcher(word);
+                
+                if (matcher.matches()) {
+                    System.out.printf("| %-25s | \u001B[32m%-21s\u001B[0m |\n", word, "ЗНАЙДЕНО (ВІДПОВІДАЄ)");
+                } else {
+                    System.out.printf("| %-25s | \u001B[31m%-21s\u001B[0m |\n", word, "НЕ ВІДПОВІДАЄ");
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Помилка при читанні файлу: " + e.getMessage());
+        }
+        
+        System.out.println("+---------------------------+-----------------------+");
+    }
+}
