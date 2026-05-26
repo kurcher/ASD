@@ -1,0 +1,151 @@
+// ==========================================
+// 1. Опис класу "Студент" згідно з Варіантом 13
+// ==========================================
+class Student {
+    private String lastName;       // Прізвище
+    private String firstName;      // Ім'я
+    private int course;            // Курс
+    private int cityCode;          // Код міста (тризначне число)
+    private boolean hasHomePhone;  // Ознака наявності домашнього телефону (true - так, false - ні)
+
+    public Student(String lastName, String firstName, int course, int cityCode, boolean hasHomePhone) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.course = course;
+        this.cityCode = cityCode;
+        this.hasHomePhone = hasHomePhone;
+    }
+
+    // Геттери
+    public String getLastName() { return lastName; }
+    public String getFirstName() { return firstName; }
+    public int getCourse() { return course; }
+    public int getCityCode() { return cityCode; }
+    public boolean isHasHomePhone() { return hasHomePhone; }
+}
+
+// ==========================================
+// 2. Клас для роботи з пошуком та модифікацією масиву
+// ==========================================
+class StudentManager {
+    // Константа для коду міста Львів
+    public static final int LVIV_CODE = 322;
+
+    /**
+     * Метод послідовного (лінійного) пошуку студентів, які підлягають видаленню.
+     * Критерій: 1 курс, місто Львів (код 322), немає домашнього телефону (false).
+     * Повертає масив логічних значень (маску), де true означає, що елемент треба видалити.
+     */
+    public static boolean[] sequentialSearchForDeletion(Student[] array) {
+        boolean[] toDelete = new boolean[array.length];
+
+        // Послідовний (лінійний) обхід масиву від початку до кінця
+        for (int i = 0; i < array.length; i++) {
+            if (array[i].getCourse() == 1 && 
+                array[i].getCityCode() == LVIV_CODE && 
+                !array[i].isHasHomePhone()) {
+                
+                toDelete[i] = true; // Елемент знайдено послідовним пошуком
+            }
+        }
+        return toDelete;
+    }
+
+    /**
+     * Метод видалення знайдених студентів із масиву
+     */
+    public static Student[] removeStudents(Student[] array, boolean[] toDelete) {
+        // Підраховуємо скільки елементів залишиться
+        int remainingCount = 0;
+        for (boolean delete : toDelete) {
+            if (!delete) remainingCount++;
+        }
+
+        // Створюємо новий масив меншого розміру
+        Student[] newArray = new Student[remainingCount];
+        int newIndex = 0;
+
+        for (int i = 0; i < array.length; i++) {
+            if (!toDelete[i]) {
+                newArray[newIndex] = array[i];
+                newIndex++;
+            }
+        }
+        return newArray;
+    }
+
+    /**
+     * Допоміжний метод для гарного виведення масиву у вигляді таблиці
+     */
+    public static void printTable(Student[] array) {
+        System.out.println("+-----------------+--------------+------+-----------+------------------+");
+        System.out.printf("| %-15s | %-12s | %-4s | %-9s | %-16s |\n", 
+                "Прізвище", "Ім'я", "Курс", "Код міста", "Домашній телефон");
+        System.out.println("+-----------------+--------------+------+-----------+------------------+");
+        for (Student s : array) {
+            String phoneStatus = s.isHasHomePhone() ? "Є (Так)" : "Немає (Ні)";
+            // Підсвічуємо Львів для наочності
+            String cityStr = (s.getCityCode() == LVIV_CODE) ? s.getCityCode() + " (Львів)" : String.valueOf(s.getCityCode());
+            
+            System.out.printf("| %-15s | %-12s | %-4d | %-9s | %-16s |\n", 
+                    s.getLastName(), s.getFirstName(), s.getCourse(), cityStr, phoneStatus);
+        }
+        System.out.println("+-----------------+--------------+------+-----------+------------------+");
+    }
+}
+
+// ==========================================
+// Головний клас програми
+// ==========================================
+public class Main {
+    public static void main(String[] args) {
+        // 3. Створення та ініціалізація масиву (не менше 20 елементів)
+        // Правило формування: Упорядковано за кодом міста (від меншого до більшого)
+        Student[] students = {
+            new Student("Іваненко", "Олексій", 1, 101, true),
+            new Student("Петренко", "Дмитро", 2, 105, false),
+            new Student("Марчук", "Анна", 1, 150, true),
+            new Student("Козак", "Світлана", 3, 201, true),
+            
+            // Студенти зі Львова (Код 322). Деякі підходять під критерій видалення (1 курс, немає телефону)
+            new Student("Шевченко", "Андрій", 1, 322, false), // ПІДЛЯГАЄ ВИДАЛЕННЮ (1 курс, Львів, немає тел.)
+            new Student("Бойко", "Марія", 1, 322, true),   // Залишається (Є телефон)
+            new Student("Коваленко", "Сергій", 2, 322, false), // Залишається (2 курс)
+            new Student("Олійник", "Ольга", 1, 322, false),  // ПІДЛЯГАЄ ВИДАЛЕННЮ (1 курс, Львів, немає тел.)
+            new Student("Кравченко", "Вадим", 4, 322, true),   // Залишається (4 курс)
+            new Student("Гончар", "Ірина", 1, 322, false),   // ПІДЛЯГАЄ ВИДАЛЕННЮ (1 курс, Львів, немає тел.)
+            
+            new Student("Поліщук", "Олег", 2, 405, true),
+            new Student("Ковальчук", "Ніна", 3, 450, false),
+            new Student("Мельник", "Артем", 1, 501, false),
+            new Student("Ткаченко", "Тетяна", 2, 550, true),
+            new Student("Лисенко", "Євген", 4, 602, true),
+            new Student("Романова", "Аліна", 1, 701, false),
+            new Student("Павленко", "Микола", 3, 750, true),
+            new Student("Савченко", "Юрій", 2, 801, false),
+            new Student("Мороз", "Наталія", 1, 880, true),
+            new Student("Харченко", "Ігор", 4, 910, false)
+        };
+
+        System.out.println("ЛАБОРАТОРНА РОБОТА 1.5: ДОСЛІДЖЕННЯ АЛГОРИТМІВ ПОШУКУ");
+        
+        // 4. Виведення вмісту одновимірного масиву ДО виконання завдання
+        System.out.println("\n[ Початковий масив студентів (Всього: " + students.length + ") ]:");
+        StudentManager.printTable(students);
+
+        // 5. Виконання послідовного пошуку елементів для видалення
+        boolean[] deleteMask = StudentManager.sequentialSearchForDeletion(students);
+
+        // Рахуємо скільки знайдено
+        int foundCount = 0;
+        for (boolean b : deleteMask) if (b) foundCount++;
+        System.out.println("\n>> Послідовним пошуком знайдено студентів для видалення: " + foundCount);
+
+        // Видалення знайдених елементів
+        Student[] updatedStudents = StudentManager.removeStudents(students, deleteMask);
+
+        // 6. Виведення вмісту одновимірного масиву ПІСЛЯ зміни
+        System.out.println("\n[ Оновлений масив студентів після видалення (Всього: " + updatedStudents.length + ") ]:");
+        StudentManager.printTable(updatedStudents);
+    }
+}
