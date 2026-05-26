@@ -1,0 +1,44 @@
+public class CombinatorialAlgorithms {
+
+    /**
+     * Алгоритм обчислення факторіала числа (перестановки P_n)
+     */
+    public static long factorial(int n) {
+        long result = 1;
+        for (int i = 1; i < n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        int totalBooks = 12;
+        int booksTogether = 3;
+
+        System.out.println("ЛАБОРАТОРНА РОБОТА 2.3: ДОСЛІДЖЕННЯ КОМБІНАТОРНИХ АЛГОРИТМІВ");
+        System.out.println("Варіант 13. Задача про розміщення книг на полиці.\n");
+        System.out.println("[ Вхідні дані ]:");
+        System.out.println(" - Загальна кількість книг: " + totalBooks);
+        System.out.println(" - Кількість книг одного автора, що мають стояти поруч: " + booksTogether);
+
+        // 1. Кількість елементів для зовнішньої перестановки
+        int externalElements = (totalBooks - booksTogether) + 1;
+        
+        // 2. Обчислення перестанок
+        long externalPermutations = factorial(externalElements); // 10!
+        long internalPermutations = factorial(booksTogether);    // 3!
+        long totalWays = externalPermutations * internalPermutations;
+
+        // 3. Виведення покрокових результатів обчислення
+        System.out.println("\n[ Покрокове розв'язання комбінаторним алгоритмом ]:");
+        System.out.printf("1. Кількість об'єктів для сортування (9 книг + 1 блок): %d\n", externalElements);
+        System.out.printf("2. Кількість перестанок цих об'єктів (%d!): %d\n", externalElements, externalPermutations);
+        System.out.printf("3. Кількість перестанок 3-х книг всередині блоку (%d!): %d\n", booksTogether, internalPermutations);
+        
+        System.out.println("\n+-------------------------------------------------------------+");
+        System.out.printf("| %-43s | %-13s |\n", "Остаточний результат (10! * 3!)", "Способи");
+        System.out.println("+-------------------------------------------------------------+");
+        System.out.printf("| Кількість можливих способів розмістити книги | %-13d |\n", totalWays);
+        System.out.println("+-------------------------------------------------------------+");
+    }
+}
